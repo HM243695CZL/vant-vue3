@@ -6,7 +6,7 @@
 
 <script lang='ts'>
 import { defineComponent, onMounted, reactive } from 'vue';
-import { postAction } from '@/common';
+import { postAction, getAction } from '@/common';
 import { getBlogListApi } from '@/api';
 import { StatusEnum } from '@/common/status.enum';
 

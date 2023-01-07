@@ -1,6 +1,27 @@
 import axios from 'axios';
 import { Session } from '@/utils/storage';
-import { showSuccessToast, showFailToast } from 'vant';
+import { showSuccessToast, showFailToast, showLoadingToast, closeToast } from 'vant';
+
+let loadingReqCount = 0;
+
+const showLoading = () => {
+  if (loadingReqCount === 0) {
+    showLoadingToast({
+      message: '加载中...',
+      forbidClick: true,
+      loadingType: 'spinner'
+    })
+  }
+  loadingReqCount += 1;
+}
+
+const hideLoading = () => {
+  if (loadingReqCount <= 0) return;
+  loadingReqCount -= 1;
+  if (loadingReqCount === 0) {
+    closeToast();
+  }
+}
 
 const service = axios.create({
   baseURL: 'http://localhost:9091/',
@@ -11,6 +32,9 @@ const service = axios.create({
 });
 service.interceptors.request.use(
   config => {
+    if(config.state) {
+      showLoading();
+    }
     if (Session.get('token')) {
       (<any>config.headers).common['Authorization'] = `Bearer ${Session.get('token')}`;
     }
@@ -22,6 +46,7 @@ service.interceptors.request.use(
 );
 service.interceptors.response.use(
   response => {
+    hideLoading();
     const res = response.data;
     if (res.status && res.status !== 200) {
       showSuccessToast(res.message);
